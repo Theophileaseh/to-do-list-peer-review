@@ -1,0 +1,181 @@
+const listsList = document.querySelector('.today-lists');
+const moveDelete = document.querySelector('.single-list-action-button');
+const listValue = document.querySelector('.single-list-input');
+
+export let listArray = [];
+
+export const addList = () => {
+
+  let listCode = '';
+  listArray.forEach((element, index) => {
+
+    const { list } = element;
+    
+    if (index % 2 === 0) {
+      listCode += `
+        <div class="single-list div-style" id="${index}">
+          <form class="single-list-form">
+            <input type="checkbox" class="checkbox">
+            <input type="text" class="single-list-input main-inputs" value="${list}">
+          </form>
+          <div class="single-list-action-button">
+            <button class = "move-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+          </div>
+        </div>
+            `;
+    } else {
+      listCode += `
+      <div class="single-list div-style">
+      <form class="single-list-form">
+        <input type="checkbox" class="checkbox">
+        <input type="text" class="single-list-input main-inputs" value="${list}">
+      </form>
+      <div class="single-list-action-button">
+        <button class = "move-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+      </div>
+    </div>
+            `;
+    }
+    console.log(index);
+  });
+  listsList.innerHTML = listCode;
+  localStorage.setItem('listData', JSON.stringify(listArray));
+  
+};
+
+window.removeList = (list) => {
+  listArray = listArray.filter((elem) => elem.list !== list);
+  addList();
+};
+
+
+window.addEventListener('DOMContentLoaded', () => {
+  const lists = JSON.parse(localStorage.getItem('listData'));
+  if (lists === null) {
+    listArray = [
+      {
+        list: 'wash the dishes',
+      },
+      {
+        list: 'complete To Do list project',
+      },
+    ];
+  } else {
+    listArray = lists;
+  }
+  addList();
+});
+
+
+// add ids
+
+
+
+// input field of list clicked event
+
+let focusParent;
+listsList.addEventListener('focusin', (e) => {
+  if(e.target.className.includes('single-list-input') && !e.target.className.includes('focus')){
+    const parent = e.target.parentNode.parentNode;
+    focusParent = parent;
+    parent.querySelector('.single-list-action-button').innerHTML = `<button class = "delete-btn" onclick="removeList('${e.target.value}')"><i class="fa-solid fa-trash-can"></i></button>`;
+    e.target.classList.add('focus')
+  } else if (e.target.className.includes('focus')){
+    const parent = e.target.parentNode.parentNode;
+    parent.querySelector('.single-list-action-button').innerHTML = '<button class = "move-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>';
+    
+    const inputValue = e.target.value
+    const {id} = parent.id;
+
+    listArray.forEach(list => {
+      if(id === list.index){
+        list.description = inputValue
+      }
+    })
+
+    localStorage.setItem('listData', JSON.stringify(listArray));
+
+    e.target.classList.remove('focus')
+
+  }
+})
+
+/*
+document.addEventListener('focusout', (e) => {
+  console.log(focusParent, e.target.parentNode.parentNode);
+  if(e.target.parentNode.parentNode === focusParent){
+    const parent = e.target.parentNode.parentNode;
+    parent.querySelector('.single-list-action-button').innerHTML = '<button class = "move-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>';
+
+    const inputValue = e.target.value
+    const {id} = parent.id;
+
+    listArray.forEach(list => {
+      if(id === list.index){
+        list.description = inputValue
+      }
+    })
+
+    localStorage.setItem('listData', JSON.stringify(listArray));
+    
+  }
+})*/
+
+/*
+window.addEventListener("click", (e) => {
+  console.log(e.target);
+  if (e.target.classList.contains('delete-btn')) {
+    const parent3 = e.target.parentNode.parentNode;
+    parent3.remove();
+    console.log(parent3);
+  }
+});*/
+
+
+
+// drag element
+
+/*
+const dragElement = document.querySelector('.single-list');
+
+dragElement.draggable = 'true';
+
+
+
+ list2.addEventListener("keyup", (event) => {
+  moveDelete.innerHTML = '<button class = "delete-btn" onclick=\'removeList("${list}")\'><i class="fa-solid fa-trash-can"></i></button>'
+});
+
+list2.removeEventListener("click", (event) => {
+  moveDelete.innerHTML = '<button class = "move-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>'
+});*/
+
+
+// checkbox event
+
+const checkbox = document.querySelector('.checkbox');
+
+listsList.addEventListener("change", function(e) {
+  if(e.target.className.includes('checkbox')){
+    const { checked } = e.target;
+    const text = e.target.parentNode.querySelector('.single-list-input');
+
+    if (checked) {
+      text.classList.add('line-through');
+      list = isCompleted;
+    } else {
+      text.classList.remove('line-through');
+    }
+
+  }
+});
+
+let isCompleted;
+
+// Remove completed list
+
+window.removeIsCompleted = (list) => {
+  listArray = listArray.filter((elem) => list.isCompleted);
+  addList();
+};
+
